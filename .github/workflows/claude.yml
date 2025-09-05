@@ -4,32 +4,36 @@ on:
   issue_comment:
     types: [created]
 
-# Global izinler (yeterli)
+# GEREKLİ izinler: yorum yazmak için 'issues: write' şart
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   run:
+    # Sadece @claude içeren YENİ bir yorum gelince çalışsın
     if: contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
-
-    # (İstersen job seviyesinde de tekrar yazabilirsin)
-    permissions:
-      contents: write
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: anthropics/claude-code-action@v1
         with:
+          # ZORUNLU: Secret olarak eklediğin key
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ github.token }}     # DOĞRU kullanım (secrets.GITHUB_TOKEN değil)
-          mode: implement
-          issue_number: ${{ github.event.issue.number }}
-          open_pull_request: true
-          include_paths: |
-            index.html
-            test.html
+          # DOĞRU token kullanımı: github.token
+          github_token: ${{ github.token }}
 
+          # İSTEĞE BAĞLI ama önerilir:
+          trigger_phrase: '@claude'     # tam eşleşme gerekiyor (zaten böyle kullanıyorsun)
+          base_branch: master            # PR hedefi
+          branch_prefix: auto/claude-    # oluşturulacak branch öneki
+          # Claude'a kısa yönerge geç (issue içeriğini ana referans alır):
+          prompt: |
+            Use the linked issue as the primary spec.
+            Modify only: index.html, test.html.
+            Keep changes minimal and open a PR when done.
+          # Örn. tura sınır koymak istersen:
+          claude_args: "--max-turns 4"
