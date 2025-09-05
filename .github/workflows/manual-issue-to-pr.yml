@@ -1,0 +1,90 @@
+name: Manual Issue to PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to convert to PR'
+        required: true
+        type: string
+      
+jobs:
+  create-pr-from-issue:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Get issue details
+        id: issue
+        run: |
+          issue_data=$(gh issue view ${{ github.event.inputs.issue_number }} --json title,body)
+          issue_title=$(echo "$issue_data" | jq -r '.title')
+          issue_body=$(echo "$issue_data" | jq -r '.body')
+          
+          echo "issue_title=${issue_title}" >> $GITHUB_OUTPUT
+          echo "issue_body<<EOF" >> $GITHUB_OUTPUT
+          echo "${issue_body}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create branch name
+        id: branch
+        run: |
+          title="${{ steps.issue.outputs.issue_title }}"
+          branch_name="issue-${{ github.event.inputs.issue_number }}-$(echo "${title,,}" | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')"
+          echo "branch_name=${branch_name}" >> $GITHUB_OUTPUT
+          
+      - name: Create and switch to new branch
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout -b ${{ steps.branch.outputs.branch_name }}
+          
+      - name: Create initial commit
+        run: |
+          echo "" >> README.md
+          echo "## Working on Issue #${{ github.event.inputs.issue_number }}" >> README.md
+          echo "**${{ steps.issue.outputs.issue_title }}**" >> README.md
+          echo "" >> README.md
+          echo "This branch was manually created to address the issue." >> README.md
+          
+          git add README.md
+          git commit -m "Start working on #${{ github.event.inputs.issue_number }}: ${{ steps.issue.outputs.issue_title }}
+
+Closes #${{ github.event.inputs.issue_number }}"
+          
+      - name: Push branch
+        run: |
+          git push origin ${{ steps.branch.outputs.branch_name }}
+          
+      - name: Create Pull Request
+        run: |
+          gh pr create \
+            --title "Fix #${{ github.event.inputs.issue_number }}: ${{ steps.issue.outputs.issue_title }}" \
+            --body "## Resolves Issue
+          
+          Closes #${{ github.event.inputs.issue_number }}
+          
+          ## Description
+          
+          ${{ steps.issue.outputs.issue_body }}
+          
+          ## Implementation Plan
+          
+          - [ ] Analyze current code
+          - [ ] Implement fixes
+          - [ ] Test changes
+          - [ ] Update documentation if needed
+          
+          ---
+          
+          🤖 This PR was manually created from issue #${{ github.event.inputs.issue_number }}" \
+            --head ${{ steps.branch.outputs.branch_name }} \
+            --base master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
