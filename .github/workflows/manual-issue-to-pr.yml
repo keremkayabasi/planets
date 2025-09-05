@@ -54,9 +54,7 @@ jobs:
           echo "This branch was manually created to address the issue." >> README.md
           
           git add README.md
-          git commit -m "Start working on #${{ github.event.inputs.issue_number }}: ${{ steps.issue.outputs.issue_title }}
-          
-          Closes #${{ github.event.inputs.issue_number }}"
+          git commit -m "Start working on #${{ github.event.inputs.issue_number }}: ${{ steps.issue.outputs.issue_title }}" -m "Closes #${{ github.event.inputs.issue_number }}"
           
       - name: Push branch
         run: |
@@ -67,22 +65,22 @@ jobs:
           gh pr create \
             --title "Fix #${{ github.event.inputs.issue_number }}: ${{ steps.issue.outputs.issue_title }}" \
             --body "## Resolves Issue
-          
+
           Closes #${{ github.event.inputs.issue_number }}
-          
+
           ## Description
-          
+
           ${{ steps.issue.outputs.issue_body }}
-          
+
           ## Implementation Plan
-          
+
           - [ ] Analyze current code
-          - [ ] Implement fixes
+          - [ ] Implement fixes  
           - [ ] Test changes
           - [ ] Update documentation if needed
-          
+
           ---
-          
+
           🤖 This PR was manually created from issue #${{ github.event.inputs.issue_number }}" \
             --head ${{ steps.branch.outputs.branch_name }} \
             --base master
