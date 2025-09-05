@@ -1,0 +1,28 @@
+name: Claude Code (on @claude comment)
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  run:
+    # Yalnızca @claude içeren yeni bir yorum gelirse çalış
+    if: contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          mode: implement
+          issue_number: ${{ github.event.issue.number }}
+          open_pull_request: true
+          # Claude'un dokunabileceği dosyaları sınırla:
+          include_paths: |
+            index.html
+            test.html
