@@ -11,8 +11,8 @@ permissions:
 
 jobs:
   run:
-
-    if: github.event.issue.pull_request == null && trim(github.event.comment.body) == '@claude'
+    # PR yorumu DEĞİL (issue yorumu) ve '@claude' ifadesi içeriyorsa çalışsın
+    if: github.event.issue.pull_request == null && contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,11 +37,13 @@ jobs:
 
             1) Wrap structure with <header>, <main>, <footer>.
             2) For the input id="earthWeight", add <label for="earthWeight">Dünyadaki ağırlığın</label> and associate it.
-            3) Add visible :focus styles for buttons and links (accessible keyboard focus).
+            3) Add visible :focus styles for buttons and links (keyboard focus).
             4) In <head>, add <meta name="description" content="Gezegenlerde ağırlığını karşılaştır.">.
             5) Add CSS fallback for prefers-reduced-motion:
                - Disable star twinkle and falling-object animations.
                - Skip the periodic gravity demo setInterval when reduce is on.
             6) Keep layout centered & readable on small screens; minimal CSS only.
-            Constraints: no new libraries, minimal diffs. 
-            After edits, open a PR to 'master' with commit message "fix: accessibility & mobile layout tweaks for index.html".
+
+            Constraints: no new libraries, minimal diffs.
+            After edits, open a PR to 'master' with commit message
+            "fix: accessibility & mobile layout tweaks for index.html".
