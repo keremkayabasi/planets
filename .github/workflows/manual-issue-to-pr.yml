@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
           
       - name: Get issue details
         id: issue
@@ -59,6 +60,7 @@ jobs:
           
       - name: Push branch
         run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin ${{ steps.branch.outputs.branch_name }}
           
       - name: Create Pull Request
