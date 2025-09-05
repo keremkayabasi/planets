@@ -1,8 +1,12 @@
-name: Claude Code (on @claude comment)
+name: Claude Code (manual run)
 
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Link to this issue number (for context & comments)'
+        required: true
+        type: number
 
 permissions:
   contents: write
@@ -11,7 +15,6 @@ permissions:
 
 jobs:
   run:
-    if: github.event.issue.pull_request == null && contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,24 +28,31 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
-          trigger_phrase: '@claude'
           base_branch: master
           branch_prefix: auto/claude-
-          use_sticky_comment: true   # BU kalabilir
-          # track_progress: true     # ❌ KALDIRILDI
+          use_sticky_comment: true
+          # track_progress: true  # <-- workflow_dispatch için de destekli değil; ekleme
           claude_args: "--max-turns 3"
           prompt: |
-            Implement these exact changes in index.html only (use test.html only if strictly necessary):
+            Implement these exact changes **in index.html only** (use test.html only if strictly necessary):
 
             1) Wrap structure with <header>, <main>, <footer>.
-            2) For the input id="earthWeight", add <label for="earthWeight">Dünyadaki ağırlığın</label> and associate it.
-            3) Add visible :focus styles for buttons and links (keyboard focus).
+            2) For the input id="earthWeight", add <label for="earthWeight">Dünyadaki ağırlığın</label> and associate it by id.
+            3) Add visible :focus styles for buttons/links (keyboard users).
             4) In <head>, add <meta name="description" content="Gezegenlerde ağırlığını karşılaştır.">.
-            5) Add CSS fallback for prefers-reduced-motion:
-               - Disable star twinkle and falling-object animations.
-               - Skip the periodic gravity demo setInterval when reduce is on.
-            6) Keep layout centered & readable on small screens; minimal CSS only.
+            5) Add a CSS fallback for prefers-reduced-motion:
+               - Disable star twinkle animation and the falling-object animation when reduce is requested.
+               - Skip the automatic demo setInterval if reduce is on.
+            6) Keep layout centered and readable on small screens; minimal CSS only.
 
-            Constraints: no new libraries, minimal diffs.
-            After edits, open a PR to 'master' with commit message
+            Constraints:
+            - No external libraries/CDNs/trackers.
+            - Keep the diff minimal.
+            After edits, open a PR to 'master' with commit message:
             "fix: accessibility & mobile layout tweaks for index.html".
+
+          # İsteğe bağlı: Issue’a not düşmesi için ayarlar (issue_number girdiğini kullanır)
+          settings: |
+            {
+              "issueNumber": ${{ inputs.issue_number }}
+            }
