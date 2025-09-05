@@ -11,7 +11,6 @@ permissions:
 
 jobs:
   run:
-    # PR yorumu DEĞİL (issue yorumu) ve '@claude' ifadesi içeriyorsa çalışsın
     if: github.event.issue.pull_request == null && contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     steps:
@@ -29,8 +28,8 @@ jobs:
           trigger_phrase: '@claude'
           base_branch: master
           branch_prefix: auto/claude-
-          use_sticky_comment: true
-          track_progress: true
+          use_sticky_comment: true   # BU kalabilir
+          # track_progress: true     # ❌ KALDIRILDI
           claude_args: "--max-turns 3"
           prompt: |
             Implement these exact changes in index.html only (use test.html only if strictly necessary):
