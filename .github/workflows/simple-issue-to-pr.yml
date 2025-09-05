@@ -1,0 +1,66 @@
+name: Simple Issue to PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to convert to PR'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Create branch and PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get issue details
+          ISSUE_TITLE=$(gh issue view ${{ github.event.inputs.issue_number }} --json title --jq .title)
+          ISSUE_BODY=$(gh issue view ${{ github.event.inputs.issue_number }} --json body --jq .body)
+          
+          # Create branch name
+          BRANCH_NAME="issue-${{ github.event.inputs.issue_number }}-$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')"
+          
+          # Create and switch to new branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH_NAME"
+          
+          # Make initial commit
+          echo "Working on issue #${{ github.event.inputs.issue_number }}: $ISSUE_TITLE" >> README.md
+          git add README.md
+          git commit -m "Start work on #${{ github.event.inputs.issue_number }}: $ISSUE_TITLE"
+          
+          # Push branch
+          git push origin "$BRANCH_NAME"
+          
+          # Create PR
+          gh pr create \
+            --title "Fix #${{ github.event.inputs.issue_number }}: $ISSUE_TITLE" \
+            --body "Closes #${{ github.event.inputs.issue_number }}
+
+## Description
+
+$ISSUE_BODY
+
+## Tasks
+
+- [ ] Implement solution
+- [ ] Test changes  
+- [ ] Update documentation
+
+---
+🤖 Auto-created from issue #${{ github.event.inputs.issue_number }}" \
+            --head "$BRANCH_NAME" \
+            --base master
