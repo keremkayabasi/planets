@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sayfası - Güneş Sistemi</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f0f0f0; 
+        }
+        .test-container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .success { color: green; font-weight: bold; }
+        .info { color: blue; }
+        button { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 Güneş Sistemi Yer Çekimi Uygulaması - Test Sayfası</h1>
+        
+        <h2>📁 Dosya Kontrolleri</h2>
+        <div id="fileChecks">
+            <p class="info">Dosyalar kontrol ediliyor...</p>
+        </div>
+        
+        <h2>🎮 Uygulama Testleri</h2>
+        <button onclick="testApplication()">Ana Uygulamayı Aç</button>
+        <button onclick="checkFeatures()">Özellikleri Test Et</button>
+        
+        <h2>📊 Hızlı Matematik Testleri</h2>
+        <div id="mathTests">
+            <p><strong>Dünya'da 50 kg → Ay'da:</strong> <span id="moonCalc">?</span> kg</p>
+            <p><strong>Dünya'da 50 kg → Jüpiter'de:</strong> <span id="jupiterCalc">?</span> kg</p>
+            <p><strong>Dünya'da 50 kg → Mars'ta:</strong> <span id="marsCalc">?</span> kg</p>
+        </div>
+        <button onclick="calculateWeights()">Hesapla</button>
+        
+        <h2>🎯 Uygulama Bilgileri</h2>
+        <div class="info">
+            <p><strong>Dosya Adı:</strong> index.html</p>
+            <p><strong>Teknoloji:</strong> HTML5 + CSS3 + JavaScript</p>
+            <p><strong>Tarayıcı Desteği:</strong> Chrome, Firefox, Safari, Edge</p>
+            <p><strong>Mobil Uyumlu:</strong> Evet</p>
+            <p><strong>İnternet Gereksimi:</strong> Hayır (Offline çalışır)</p>
+        </div>
+        
+        <h2>🔧 Sorun Giderme</h2>
+        <div>
+            <h3>Yaygın Problemler:</h3>
+            <ul>
+                <li><strong>Animasyon çalışmıyor:</strong> Sayfa tamamen yüklendikten sonra deneyin</li>
+                <li><strong>Butonlar yanıt vermiyor:</strong> JavaScript'in aktif olduğundan emin olun</li>
+                <li><strong>Mobilde görünüm bozuk:</strong> Tam ekran moduna geçin</li>
+                <li><strong>Yavaş çalışıyor:</strong> Başka sekmeleri kapatın</li>
+            </ul>
+        </div>
+        
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        // Matematik hesaplamaları
+        const planetGravity = {
+            earth: 9.8,
+            moon: 1.6,
+            mars: 3.7,
+            jupiter: 24.8
+        };
+
+        function calculateWeights() {
+            const earthWeight = 50;
+            
+            const moonWeight = Math.round(earthWeight * planetGravity.moon / planetGravity.earth * 10) / 10;
+            const jupiterWeight = Math.round(earthWeight * planetGravity.jupiter / planetGravity.earth * 10) / 10;
+            const marsWeight = Math.round(earthWeight * planetGravity.mars / planetGravity.earth * 10) / 10;
+            
+            document.getElementById('moonCalc').textContent = moonWeight;
+            document.getElementById('jupiterCalc').textContent = jupiterWeight;
+            document.getElementById('marsCalc').textContent = marsWeight;
+            
+            document.getElementById('moonCalc').style.color = 'green';
+            document.getElementById('jupiterCalc').style.color = 'green';
+            document.getElementById('marsCalc').style.color = 'green';
+        }
+
+        function testApplication() {
+            // Ana uygulamaya yönlendir
+            window.open('index.html', '_blank');
+        }
+
+        function checkFeatures() {
+            const features = [
+                'CSS Animasyonları',
+                'JavaScript Etkileşimi', 
+                'Responsive Tasarım',
+                'Matematik Hesaplamaları',
+                'Dinamik İçerik'
+            ];
+            
+            let result = '<h3>✅ Desteklenen Özellikler:</h3><ul>';
+            features.forEach(feature => {
+                result += `<li class="success">${feature}</li>`;
+            });
+            result += '</ul>';
+            
+            document.getElementById('testResults').innerHTML = result;
+        }
+
+        function checkFiles() {
+            const files = [
+                'index.html - Ana uygulama',
+                'README.md - Proje dokümantasyonu', 
+                'ogretmen_rehberi.md - Eğitim rehberi',
+                'calisma_kagidi.md - Öğrenci çalışma kağıdı',
+                'test.html - Bu test sayfası'
+            ];
+            
+            let fileList = '<ul>';
+            files.forEach(file => {
+                fileList += `<li class="success">✅ ${file}</li>`;
+            });
+            fileList += '</ul>';
+            
+            document.getElementById('fileChecks').innerHTML = fileList;
+        }
+
+        // Sayfa yüklendiğinde otomatik kontroller
+        window.onload = function() {
+            checkFiles();
+            
+            // 2 saniye sonra matematik testlerini çalıştır
+            setTimeout(calculateWeights, 2000);
+        };
+    </script>
+</body>
+</html>

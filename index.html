@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güneş Sistemi Yer Çekimi Macerası</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b69 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #ffffff;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #ffffff; }
+            to { text-shadow: 0 0 30px #ffff00, 0 0 40px #ffff00; }
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .planet-selector {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .planet-selector:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .planet-selector.active {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .simulation-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .planet-display {
+            text-align: center;
+            position: relative;
+        }
+
+        .planet-visual {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .planet-visual:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .gravity-demo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .falling-object {
+            width: 20px;
+            height: 20px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: none;
+        }
+
+        .planet-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .planet-name {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .gravity-value {
+            font-size: 1.5rem;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .fun-fact {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #ffd700;
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+
+        .weight-calculator {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .weight-input {
+            width: 100px;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 0 10px;
+        }
+
+        .weight-result {
+            font-size: 1.3rem;
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .animation-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .animate-btn {
+            background: linear-gradient(45deg, #9b59b6, #e74c3c);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .animate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .comparison-table {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .comparison-table h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+
+        .planet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .planet-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .planet-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .planet-mini {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .planet-visual {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Güneş Sistemi Yer Çekimi Macerası 🌟</h1>
+            <p>Farklı gezegenlerde yer çekiminin nasıl çalıştığını keşfet!</p>
+        </div>
+
+        <div class="control-panel">
+            <button class="planet-selector active" data-planet="earth">🌍 Dünya</button>
+            <button class="planet-selector" data-planet="moon">🌙 Ay</button>
+            <button class="planet-selector" data-planet="mars">🔴 Mars</button>
+            <button class="planet-selector" data-planet="jupiter">🟤 Jüpiter</button>
+            <button class="planet-selector" data-planet="venus">🟡 Venüs</button>
+            <button class="planet-selector" data-planet="mercury">⚪ Merkür</button>
+            <button class="planet-selector" data-planet="saturn">🪐 Satürn</button>
+            <button class="planet-selector" data-planet="neptune">🔵 Neptün</button>
+        </div>
+
+        <div class="simulation-area">
+            <div class="planet-display">
+                <div class="planet-visual" id="planetVisual">
+                    <div class="gravity-demo">
+                        <div class="falling-object" id="fallingObject"></div>
+                    </div>
+                </div>
+                <div class="animation-controls">
+                    <button class="animate-btn" onclick="animateGravity()">⚡ Yer Çekimini Gör!</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="planet-info" id="planetInfo">
+            <div class="planet-name" id="planetName">Dünya</div>
+            <div class="gravity-value" id="gravityValue">Yer çekimi: 9.8 m/s²</div>
+            <div class="fun-fact" id="funFact">
+                🌍 Dünya'da 1 kilogram ağırlığında bir nesne, tam olarak 1 kilogram ağırlığındadır!
+            </div>
+            
+            <div class="weight-calculator">
+                <h3>🧮 Ağırlık Hesaplayıcısı</h3>
+                <p>Dünya'daki ağırlığın: <input type="number" class="weight-input" id="earthWeight" value="50" min="1" max="200"> kg</p>
+                <div class="weight-result" id="weightResult">Bu gezegende ağırlığın: 50 kg olurdu</div>
+            </div>
+        </div>
+
+        <div class="comparison-table">
+            <h3>🌌 Tüm Gezegenler Karşılaştırması</h3>
+            <div class="planet-grid" id="planetGrid">
+                <!-- Dinamik olarak doldurulacak -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const planetData = {
+            earth: {
+                name: "Dünya",
+                gravity: 9.8,
+                color: "linear-gradient(45deg, #4a90e2, #7ed321)",
+                fact: "🌍 Dünya'da 1 kilogram ağırlığında bir nesne, tam olarak 1 kilogram ağırlığındadır! Bu yüzden Dünya'yı referans gezegen olarak kullanıyoruz.",
+                fallDuration: 1000
+            },
+            moon: {
+                name: "Ay",
+                gravity: 1.6,
+                color: "linear-gradient(45deg, #c4c4c4, #f0f0f0)",
+                fact: "🌙 Ay'da çok daha hafif hissedersin! Burada zıplayabilir ve uzun süre havada kalabilirsin. Astronotlar burada dev adımlarla yürüyor!",
+                fallDuration: 2400
+            },
+            mars: {
+                name: "Mars",
+                gravity: 3.7,
+                color: "linear-gradient(45deg, #cd5c5c, #ff6b47)",
+                fact: "🔴 Mars'ta Dünya'dan daha hafif hissedersin ama Ay'dan daha ağır! Gelecekte buraya seyahat edebiliriz.",
+                fallDuration: 1600
+            },
+            jupiter: {
+                name: "Jüpiter",
+                gravity: 24.8,
+                color: "linear-gradient(45deg, #d2691e, #ff8c00)",
+                fact: "🟤 Jüpiter'de çok ağır hissedersin! Bu dev gezegende yürümek çok zor olurdu. Neyse ki Jüpiter gazdan yapılmış!",
+                fallDuration: 400
+            },
+            venus: {
+                name: "Venüs",
+                gravity: 8.9,
+                color: "linear-gradient(45deg, #ffd700, #ffb347)",
+                fact: "🟡 Venüs'te Dünya'ya çok benzer ağırlık hissedersin! Ama çok sıcak - 460°C! Kurşun bile erir burada.",
+                fallDuration: 1100
+            },
+            mercury: {
+                name: "Merkür",
+                gravity: 3.7,
+                color: "linear-gradient(45deg, #a0a0a0, #d3d3d3)",
+                fact: "⚪ Merkür'de Mars'la aynı yer çekimini hissedersin! Güneş'e en yakın gezegen olduğu için çok sıcak ve soğuk oluyor.",
+                fallDuration: 1600
+            },
+            saturn: {
+                name: "Satürn",
+                gravity: 10.4,
+                color: "linear-gradient(45deg, #fad5a5, #ffb347)",
+                fact: "🪐 Satürn'de Dünya'dan biraz daha ağır hissedersin! Ünlü halkalarına sahip bu gezegen aslında suda yüzebilir!",
+                fallDuration: 950
+            },
+            neptune: {
+                name: "Neptün",
+                gravity: 11.2,
+                color: "linear-gradient(45deg, #4169e1, #1e90ff)",
+                fact: "🔵 Neptün'de Dünya'dan biraz daha ağır hissedersin! Bu mavi gezende 2000 km/saat hızında rüzgarlar esiyor!",
+                fallDuration: 880
+            }
+        };
+
+        let currentPlanet = 'earth';
+        let isAnimating = false;
+
+        // Yıldızları oluştur
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Gezegen karşılaştırma tablosunu oluştur
+        function createComparisonTable() {
+            const grid = document.getElementById('planetGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(planetData).forEach(planetKey => {
+                const planet = planetData[planetKey];
+                const card = document.createElement('div');
+                card.className = 'planet-card';
+                card.onclick = () => selectPlanet(planetKey);
+                
+                card.innerHTML = `
+                    <div class="planet-mini" style="background: ${planet.color}"></div>
+                    <div><strong>${planet.name}</strong></div>
+                    <div>⚖️ ${planet.gravity} m/s²</div>
+                    <div style="font-size: 0.9rem; color: #4ecdc4;">50kg → ${Math.round(50 * planet.gravity / 9.8)}kg</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function selectPlanet(planetKey) {
+            currentPlanet = planetKey;
+            const planet = planetData[planetKey];
+            
+            // Buton durumlarını güncelle
+            document.querySelectorAll('.planet-selector').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-planet="${planetKey}"]`).classList.add('active');
+            
+            // Gezegen görselini güncelle
+            const planetVisual = document.getElementById('planetVisual');
+            planetVisual.style.background = planet.color;
+            
+            // Bilgileri güncelle
+            document.getElementById('planetName').textContent = planet.name;
+            document.getElementById('gravityValue').textContent = `Yer çekimi: ${planet.gravity} m/s²`;
+            document.getElementById('funFact').textContent = planet.fact;
+            
+            // Ağırlık hesaplayıcısını güncelle
+            updateWeightCalculation();
+            
+            // Düşen nesneyi sıfırla
+            const fallingObject = document.getElementById('fallingObject');
+            fallingObject.style.top = '-100px';
+            fallingObject.style.transition = 'none';
+        }
+
+        function updateWeightCalculation() {
+            const earthWeight = parseFloat(document.getElementById('earthWeight').value) || 50;
+            const planet = planetData[currentPlanet];
+            const planetWeight = Math.round(earthWeight * planet.gravity / 9.8 * 10) / 10;
+            
+            document.getElementById('weightResult').textContent = 
+                `${planet.name}'de ağırlığın: ${planetWeight} kg olurdu`;
+        }
+
+        function animateGravity() {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            const fallingObject = document.getElementById('fallingObject');
+            const planet = planetData[currentPlanet];
+            
+            // Nesneyi başlangıç pozisyonuna getir
+            fallingObject.style.transition = 'none';
+            fallingObject.style.top = '-100px';
+            
+            // Kısa bir gecikme sonrası animasyonu başlat
+            setTimeout(() => {
+                fallingObject.style.transition = `top ${planet.fallDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+                fallingObject.style.top = '180px';
+                
+                // Animasyon bittiğinde sıfırla
+                setTimeout(() => {
+                    fallingObject.style.transition = 'none';
+                    fallingObject.style.top = '-100px';
+                    isAnimating = false;
+                }, planet.fallDuration);
+            }, 100);
+        }
+
+        // Event listener'ları ekle
+        document.querySelectorAll('.planet-selector').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                selectPlanet(e.target.dataset.planet);
+            });
+        });
+
+        document.getElementById('earthWeight').addEventListener('input', updateWeightCalculation);
+        
+        // Gezegen görseliyle etkileşim
+        document.getElementById('planetVisual').addEventListener('click', animateGravity);
+
+        // Sayfa yüklendiğinde başlangıç ayarları
+        window.addEventListener('load', () => {
+            createStars();
+            createComparisonTable();
+            selectPlanet('earth');
+        });
+
+        // Otomatik demo (her 5 saniyede bir)
+        setInterval(() => {
+            if (!isAnimating) {
+                animateGravity();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
