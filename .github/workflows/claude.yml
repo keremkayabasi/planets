@@ -7,15 +7,15 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  issues: write  # action'ın issue'a yorum/bağlantı yazabilmesi için
+  issues: write
 
 jobs:
   run:
-    if: contains(github.event.comment.body, '@claude')
+
+    if: github.event.issue.pull_request == null && trim(github.event.comment.body) == '@claude'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
 
       - name: Configure git identity
         run: |
@@ -29,9 +29,19 @@ jobs:
           trigger_phrase: '@claude'
           base_branch: master
           branch_prefix: auto/claude-
-          prompt: |
-            Use the linked issue as the primary spec.
-            Modify only: index.html, test.html.
-            Keep changes minimal and open a PR when done.
-
+          use_sticky_comment: true
+          track_progress: true
           claude_args: "--max-turns 3"
+          prompt: |
+            Implement these exact changes in index.html only (use test.html only if strictly necessary):
+
+            1) Wrap structure with <header>, <main>, <footer>.
+            2) For the input id="earthWeight", add <label for="earthWeight">Dünyadaki ağırlığın</label> and associate it.
+            3) Add visible :focus styles for buttons and links (accessible keyboard focus).
+            4) In <head>, add <meta name="description" content="Gezegenlerde ağırlığını karşılaştır.">.
+            5) Add CSS fallback for prefers-reduced-motion:
+               - Disable star twinkle and falling-object animations.
+               - Skip the periodic gravity demo setInterval when reduce is on.
+            6) Keep layout centered & readable on small screens; minimal CSS only.
+            Constraints: no new libraries, minimal diffs. 
+            After edits, open a PR to 'master' with commit message "fix: accessibility & mobile layout tweaks for index.html".
