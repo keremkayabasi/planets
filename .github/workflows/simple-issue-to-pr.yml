@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
         
       - name: Create branch and PR
         env:
@@ -32,6 +34,10 @@ jobs:
           # Create branch name
           BRANCH_NAME="issue-${{ github.event.inputs.issue_number }}-$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')"
           
+          # Ensure we have latest changes
+          git fetch origin
+          git pull origin master
+          
           # Create and switch to new branch
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -42,8 +48,8 @@ jobs:
           git add README.md
           git commit -m "Start work on #${{ github.event.inputs.issue_number }}: $ISSUE_TITLE"
           
-          # Push branch
-          git push origin "$BRANCH_NAME"
+          # Push branch (with upstream tracking)
+          git push -u origin "$BRANCH_NAME"
           
           # Create PR
           gh pr create \
