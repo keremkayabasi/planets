@@ -55,8 +55,8 @@ jobs:
           
           git add README.md
           git commit -m "Start working on #${{ github.event.inputs.issue_number }}: ${{ steps.issue.outputs.issue_title }}
-
-Closes #${{ github.event.inputs.issue_number }}"
+          
+          Closes #${{ github.event.inputs.issue_number }}"
           
       - name: Push branch
         run: |
