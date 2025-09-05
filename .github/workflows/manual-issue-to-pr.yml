@@ -11,19 +11,23 @@ on:
 jobs:
   create-pr-from-issue:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
           fetch-depth: 0
           
       - name: Get issue details
         id: issue
         run: |
           # Get issue details using GitHub REST API directly
-          issue_response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          issue_response=$(curl -s -H "Authorization: token ${{ github.token }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.inputs.issue_number }}")
           
           issue_title=$(echo "$issue_response" | jq -r '.title')
@@ -60,7 +64,7 @@ jobs:
           
       - name: Push branch
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
           git push origin ${{ steps.branch.outputs.branch_name }}
           
       - name: Create Pull Request
@@ -77,7 +81,7 @@ jobs:
           
           # Create PR using the JSON file
           curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ github.token }}" \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${{ github.repository }}/pulls" \
