@@ -100,7 +100,7 @@ Closes #${{ steps.issue.outputs.issue_number }}"
             --head ${{ steps.branch.outputs.branch_name }} \
             --base master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Add comment to issue
         run: |
@@ -111,4 +111,4 @@ Closes #${{ steps.issue.outputs.issue_number }}"
           
           You can now start working on this branch and push your changes. The PR will be updated automatically."
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

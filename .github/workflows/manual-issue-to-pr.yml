@@ -21,16 +21,16 @@ jobs:
       - name: Get issue details
         id: issue
         run: |
-          issue_data=$(gh issue view ${{ github.event.inputs.issue_number }} --json title,body)
-          issue_title=$(echo "$issue_data" | jq -r '.title')
-          issue_body=$(echo "$issue_data" | jq -r '.body')
+          # Get issue title and body using GitHub API
+          issue_title=$(gh issue view ${{ github.event.inputs.issue_number }} --json title --jq '.title')
+          issue_body=$(gh issue view ${{ github.event.inputs.issue_number }} --json body --jq '.body // ""')
           
           echo "issue_title=${issue_title}" >> $GITHUB_OUTPUT
           echo "issue_body<<EOF" >> $GITHUB_OUTPUT
           echo "${issue_body}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Create branch name
         id: branch
