@@ -4,9 +4,8 @@ on:
   issue_comment:
     types: [created]
 
-
+# Global izinler (yeterli)
 permissions:
-  id-token: write       # OIDC token için şart
   contents: write
   pull-requests: write
 
@@ -14,16 +13,23 @@ jobs:
   run:
     if: contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
+
+    # (İstersen job seviyesinde de tekrar yazabilirsin)
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}   # opsiyonel ama önerilir
+          github_token: ${{ github.token }}     # DOĞRU kullanım (secrets.GITHUB_TOKEN değil)
           mode: implement
           issue_number: ${{ github.event.issue.number }}
           open_pull_request: true
           include_paths: |
             index.html
             test.html
+
