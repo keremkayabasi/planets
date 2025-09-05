@@ -111,3 +111,7 @@ Yer çekimi, her gezegenin kütlesi sayesinde nesneleri kendine çekme kuvvetidi
 ---
 
 **Not**: Bu uygulama eğitim amaçlıdır ve gerçek yer çekimi değerlerini basitleştirilmiş şekilde sunar.
+## Working on Issue #4
+**Change Title Test**
+
+This branch was manually created to address the issue.
